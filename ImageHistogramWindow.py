@@ -122,6 +122,8 @@ class Ui_ImageProcessingWindow(object):
 
                 pixel_dic = self.count_pixels_histogram(pix_val_flat)
                 plt.bar(list(pixel_dic.keys()), pixel_dic.values(), color='gray')
+                plt.title('GREYSCALE', size=16, y=1.1)
+                plt.tight_layout()
                 plt.show()
             else:
                 r = []
@@ -134,16 +136,20 @@ class Ui_ImageProcessingWindow(object):
 
                 r = self.count_pixels_histogram(r)
                 plt.subplot(3, 1, 1)
+                plt.title('RED', size=16, y=1.12)
                 plt.bar(list(r.keys()), r.values(), color='r')
 
                 g = self.count_pixels_histogram(g)
                 plt.subplot(3, 1, 2)
+                plt.title('GREEN', size=16, y=1.12)
                 plt.bar(list(g.keys()), g.values(), color='g')
 
                 b = self.count_pixels_histogram(b)
                 plt.subplot(3, 1, 3)
+                plt.title('BLUE', size=16, y=1.12)
                 plt.bar(list(b.keys()), b.values(), color='b')
 
+                plt.tight_layout()
                 plt.show()
 
                 # METHOD WITH BUILT IN FUNCTION
