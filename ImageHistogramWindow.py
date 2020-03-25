@@ -1,9 +1,16 @@
-import os
-import matplotlib.pyplot as plt
 
+import os
+from io import StringIO
+import PIL
+import matplotlib.pyplot as plt
+import numpy
+import io
 from PIL import Image
+import numpy as np
+from PIL.ImageQt import ImageQt
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QBuffer, QIODevice
 from PyQt5.QtWidgets import QInputDialog, QFileDialog, QLabel, QColorDialog, QApplication, QMessageBox
 from PyQt5.QtGui import QPixmap, QImage, QColor, QPalette, QPainter
 
@@ -21,9 +28,9 @@ class Ui_ImageProcessingWindow(object):
         self.photo.setText("")
         pixmap = QtGui.QPixmap("img/kontrolny3.tiff")
         # version with quality lose
-        # base_pixmap = pixmap.scaled(100, 80)
-        self.photo.setPixmap(pixmap)
-        self.photo.setScaledContents(True)
+        base_pixmap = pixmap.scaled(100, 80)
+        self.photo.setPixmap(base_pixmap)
+        #self.photo.setScaledContents(True)
         self.photo.setObjectName("photo")
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setGeometry(QtCore.QRect(0, 620, 800, 20))
@@ -67,6 +74,9 @@ class Ui_ImageProcessingWindow(object):
         self.histogramButton = QtWidgets.QPushButton(self.centralwidget)
         self.histogramButton.setGeometry(QtCore.QRect(530,670,113,32))
         self.histogramButton.setObjectName("histogramButton")
+        self.brightenButton= QtWidgets.QPushButton(self.centralwidget)
+        self.brightenButton.setGeometry(QtCore.QRect(530, 700, 113,32))
+        self.brightenButton.setObjectName("brightenButton")
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(ImageProcessingWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
@@ -89,7 +99,7 @@ class Ui_ImageProcessingWindow(object):
         self.valueButton.clicked.connect(self.save_pixel_value)
         self.saveButton.clicked.connect(self.save_dialog_box)
         self.histogramButton.clicked.connect(self.create_histogram)
-
+        self.brightenButton.clicked.connect(self.brighten_img)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
         ImageProcessingWindow.setWindowTitle(_translate("ImageProcessingWindow", "Image Processing"))
@@ -106,6 +116,40 @@ class Ui_ImageProcessingWindow(object):
         self.valueButton.setText(_translate("ImageProcessingWindow", "Save Value"))
         self.pickerButton.setText(_translate("ImageProcessingWindow", "Choose Color"))
         self.histogramButton.setText(_translate("ImageProcessingWindow", "Plot histogram"))
+        self.brightenButton.setText(_translate("ImageProcessingWindow", "Brighten Image"))
+
+    def brighten_img(self):
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+        c = 255 / (np.log(1 + np.max(img)))
+        pix_val = list(img.getdata())
+
+        transformed_pic = []
+        for i in range(len(pix_val)):
+            elems = []
+            for j in range(len(pix_val[i])):
+                new_pix = int(c * np.log(1 + pix_val[i][j]))
+                elems.append(new_pix)
+            tup = (elems[0], elems[1], elems[2])
+            transformed_pic.append(tup)
+
+        image = Image.new('RGB', img.size)
+        image.putdata(transformed_pic)
+
+        image.save("Histogram_img/brightened.png")
+        print("Saved image.")
+        #image = Image.open("Histogram_img/path.png")
+        pix =QtGui.QPixmap("Histogram_img/brightened.png")
+        self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        scaled_pixmap = pix.scaled(800, 620)
+        self.photo.setPixmap(scaled_pixmap)
+        self.sizeBox.setCurrentIndex(3)
+        self.sizeBox.hide()
+        self.sizeBox.show()
+        self.photo.hide()
+        self.photo.show()
+
+
 
 
     def create_histogram(self):
@@ -152,6 +196,14 @@ class Ui_ImageProcessingWindow(object):
                 plt.tight_layout()
                 plt.show()
 
+                avaraged = self.avaraged_histogram(r, g, b)
+                plt.title('AVARAGED (R + G +B) / 3', size=16, y=1.12)
+                plt.bar(list(avaraged.keys()), avaraged.values(), color='b')
+                plt.tight_layout()
+                plt.show()
+
+
+
                 # METHOD WITH BUILT IN FUNCTION
                 # region
                 # r2, g2, b2 = image.split()
@@ -196,10 +248,17 @@ class Ui_ImageProcessingWindow(object):
         return True
 
     def count_pixels_histogram(self, seq):
-        hist = dict([(x, 0) for x in range(255)])
+        hist = dict([(x, 0) for x in range(256)])
         for i in seq:
             hist[i] = hist.get(i, 0) + 1
         return hist
+
+    def avaraged_histogram(self, r, g, b):
+        hist = dict([(x, 0) for x in range(256)])
+        for i in range(len(r)):
+            hist[i] = (r[i] + g[i] + b[i]) / 3
+        return hist
+
 
     def save_pixel_value(self):
         if self.clicked_pixel_y != None and self.clicked_pixel_x != None:
@@ -210,8 +269,10 @@ class Ui_ImageProcessingWindow(object):
             img.setPixelColor(int(self.clicked_pixel_x), int(self.clicked_pixel_y), rgb)
             pix_final = QtGui.QPixmap.fromImage(img)
             self.photo.setPixmap(pix_final)
-            ImageProcessingWindow.hide()
-            ImageProcessingWindow.show()
+            self.photo.hide()
+            self.photo.show()
+            # ImageProcessingWindow.hide()
+            # ImageProcessingWindow.show()
 
     def show_color_dialog(self):
         selected_color = QColorDialog.getColor()
@@ -241,38 +302,39 @@ class Ui_ImageProcessingWindow(object):
         index = int(self.sizeBox.currentIndex())
         # version with quality lose
 
-        #pixmap = QtGui.QPixmap(self.pathLabel.text())
-        # pixmap = self.photo.pixmap()
-        # if index == 0:
-        #     smaller_pixmap = pixmap.scaled(100, 80)
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 100, 80))
-        #     self.photo.setPixmap(smaller_pixmap)
-        #
-        # elif index == 1:
-        #     smaller_pixmap = pixmap.scaled(200, 160)
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 200, 160))
-        #     self.photo.setPixmap(smaller_pixmap)
-        # elif index == 2:
-        #     smaller_pixmap = pixmap.scaled(400, 320)
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 400, 320))
-        #     self.photo.setPixmap(smaller_pixmap)
-        # elif index == 3:
-        #     smaller_pixmap = pixmap.scaled(800, 620)
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
-        #     self.photo.setPixmap(smaller_pixmap)
+        # pixmap = QtGui.QPixmap(self.pathLabel.text())
+        pixmap = self.photo.pixmap()
+        if index == 0:
+            smaller_pixmap = pixmap.scaled(100, 80)
+            self.photo.setGeometry(QtCore.QRect(0, 0, 100, 80))
+            self.photo.setPixmap(smaller_pixmap)
+
+        elif index == 1:
+            smaller_pixmap = pixmap.scaled(200, 160)
+            self.photo.setGeometry(QtCore.QRect(0, 0, 200, 160))
+            self.photo.setPixmap(smaller_pixmap)
+        elif index == 2:
+            smaller_pixmap = pixmap.scaled(400, 320)
+            self.photo.setGeometry(QtCore.QRect(0, 0, 400, 320))
+            self.photo.setPixmap(smaller_pixmap)
+        elif index == 3:
+            smaller_pixmap = pixmap.scaled(800, 620)
+            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+            self.photo.setPixmap(smaller_pixmap)
 
 
         # version without quality lose
-        if index == 0:
-            self.photo.setGeometry(QtCore.QRect(0, 0, 100, 80))
-        elif index == 1:
-            self.photo.setGeometry(QtCore.QRect(0, 0, 200, 160))
+        # if index == 0:
+        #     self.photo.setGeometry(QtCore.QRect(0, 0, 100, 80))
+        # elif index == 1:
+        #     self.photo.setGeometry(QtCore.QRect(0, 0, 200, 160))
+        #
+        # elif index == 2:
+        #     self.photo.setGeometry(QtCore.QRect(0, 0, 400, 320))
+        #
+        # elif index == 3:
+        #     self.photo.setGeometry(QtCore.QRect(0, 0, 800, 640))
 
-        elif index == 2:
-            self.photo.setGeometry(QtCore.QRect(0, 0, 400, 320))
-
-        elif index == 3:
-            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 640))
     def get_pixel_position(self, event):
         x = event.pos().x()
         y = event.pos().y()
