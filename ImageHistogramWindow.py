@@ -77,6 +77,9 @@ class Ui_ImageProcessingWindow(object):
         self.brightenButton= QtWidgets.QPushButton(self.centralwidget)
         self.brightenButton.setGeometry(QtCore.QRect(530, 700, 113,32))
         self.brightenButton.setObjectName("brightenButton")
+        self.darkenButton = QtWidgets.QPushButton(self.centralwidget)
+        self.darkenButton.setGeometry(QtCore.QRect(640, 640, 113, 32))
+        self.darkenButton.setObjectName("darkenButton")
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(ImageProcessingWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
@@ -100,6 +103,7 @@ class Ui_ImageProcessingWindow(object):
         self.saveButton.clicked.connect(self.save_dialog_box)
         self.histogramButton.clicked.connect(self.create_histogram)
         self.brightenButton.clicked.connect(self.brighten_img)
+        self.darkenButton.clicked.connect(self.darken_img)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
         ImageProcessingWindow.setWindowTitle(_translate("ImageProcessingWindow", "Image Processing"))
@@ -117,6 +121,7 @@ class Ui_ImageProcessingWindow(object):
         self.pickerButton.setText(_translate("ImageProcessingWindow", "Choose Color"))
         self.histogramButton.setText(_translate("ImageProcessingWindow", "Plot histogram"))
         self.brightenButton.setText(_translate("ImageProcessingWindow", "Brighten Image"))
+        self.darkenButton.setText(_translate("ImageProcessingWindow", "Darken Image"))
 
     def brighten_img(self):
         img = Image.open(self.pathLabel.text(), "r")
@@ -138,7 +143,7 @@ class Ui_ImageProcessingWindow(object):
 
         image.save("Histogram_img/brightened.png")
         print("Saved image.")
-        #image = Image.open("Histogram_img/path.png")
+
         pix =QtGui.QPixmap("Histogram_img/brightened.png")
         self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
         scaled_pixmap = pix.scaled(800, 620)
@@ -149,7 +154,36 @@ class Ui_ImageProcessingWindow(object):
         self.photo.hide()
         self.photo.show()
 
+    def darken_img(self):
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+        c = 255 / (np.log(1 + np.max(img)))
+        pix_val = list(img.getdata())
 
+        transformed_pic = []
+        for i in range(len(pix_val)):
+            elems = []
+            for j in range(len(pix_val[i])):
+                new_pix = int(c * pow(pix_val[i][j], 0.1))
+                elems.append(new_pix)
+            tup = (elems[0], elems[1], elems[2])
+            transformed_pic.append(tup)
+
+        image = Image.new('RGB', img.size)
+        image.putdata(transformed_pic)
+
+        image.save("Histogram_img/darkened.png")
+        print("Saved image.")
+
+        pix =QtGui.QPixmap("Histogram_img/darkened.png")
+        self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        scaled_pixmap = pix.scaled(800, 620)
+        self.photo.setPixmap(scaled_pixmap)
+        self.sizeBox.setCurrentIndex(3)
+        self.sizeBox.hide()
+        self.sizeBox.show()
+        self.photo.hide()
+        self.photo.show()
 
 
     def create_histogram(self):
