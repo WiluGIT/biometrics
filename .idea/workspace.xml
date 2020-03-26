@@ -4,6 +4,7 @@
     <list default="true" id="7025cc10-03d6-487d-9cf5-3e7de567bc53" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Histogram_img/brightened.png" beforeDir="false" afterPath="$PROJECT_DIR$/Histogram_img/brightened.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Histogram_img/darkened.png" beforeDir="false" afterPath="$PROJECT_DIR$/Histogram_img/darkened.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ImageHistogramWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ImageHistogramWindow.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,6 +35,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager" selected="Python.ImageHistogramWindow">
@@ -130,42 +132,46 @@
       <screen x="0" y="23" width="1440" height="836" />
     </state>
     <state x="390" y="244" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1440.836@0.23.1440.836" timestamp="1585074225929" />
-    <state width="625" height="176" key="GridCell.Tab.0.bottom" timestamp="1585144005164">
+    <state width="639" height="176" key="GridCell.Tab.0.bottom" timestamp="1585185814547">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="176" key="GridCell.Tab.0.bottom/0.23.1440.836@0.23.1440.836" timestamp="1585144005164" />
-    <state width="625" height="176" key="GridCell.Tab.0.center" timestamp="1585144005164">
+    <state width="639" height="176" key="GridCell.Tab.0.bottom/0.23.1440.836@0.23.1440.836" timestamp="1585185814547" />
+    <state width="639" height="176" key="GridCell.Tab.0.center" timestamp="1585185814546">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="176" key="GridCell.Tab.0.center/0.23.1440.836@0.23.1440.836" timestamp="1585144005164" />
-    <state width="625" height="176" key="GridCell.Tab.0.left" timestamp="1585144005163">
+    <state width="639" height="176" key="GridCell.Tab.0.center/0.23.1440.836@0.23.1440.836" timestamp="1585185814546" />
+    <state width="639" height="176" key="GridCell.Tab.0.left" timestamp="1585185814546">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="176" key="GridCell.Tab.0.left/0.23.1440.836@0.23.1440.836" timestamp="1585144005163" />
-    <state width="625" height="176" key="GridCell.Tab.0.right" timestamp="1585144005164">
+    <state width="639" height="176" key="GridCell.Tab.0.left/0.23.1440.836@0.23.1440.836" timestamp="1585185814546" />
+    <state width="639" height="176" key="GridCell.Tab.0.right" timestamp="1585185814547">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="176" key="GridCell.Tab.0.right/0.23.1440.836@0.23.1440.836" timestamp="1585144005164" />
-    <state width="625" height="238" key="GridCell.Tab.1.bottom" timestamp="1585090280251">
+    <state width="639" height="176" key="GridCell.Tab.0.right/0.23.1440.836@0.23.1440.836" timestamp="1585185814547" />
+    <state width="938" height="238" key="GridCell.Tab.1.bottom" timestamp="1585170852038">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="238" key="GridCell.Tab.1.bottom/0.23.1440.836@0.23.1440.836" timestamp="1585090280251" />
-    <state width="625" height="238" key="GridCell.Tab.1.center" timestamp="1585090280250">
+    <state width="938" height="238" key="GridCell.Tab.1.bottom/0.23.1440.836@0.23.1440.836" timestamp="1585170852038" />
+    <state width="938" height="238" key="GridCell.Tab.1.center" timestamp="1585170852037">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="238" key="GridCell.Tab.1.center/0.23.1440.836@0.23.1440.836" timestamp="1585090280250" />
-    <state width="625" height="238" key="GridCell.Tab.1.left" timestamp="1585090280250">
+    <state width="938" height="238" key="GridCell.Tab.1.center/0.23.1440.836@0.23.1440.836" timestamp="1585170852037" />
+    <state width="938" height="238" key="GridCell.Tab.1.left" timestamp="1585170852037">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="238" key="GridCell.Tab.1.left/0.23.1440.836@0.23.1440.836" timestamp="1585090280250" />
-    <state width="625" height="238" key="GridCell.Tab.1.right" timestamp="1585090280250">
+    <state width="938" height="238" key="GridCell.Tab.1.left/0.23.1440.836@0.23.1440.836" timestamp="1585170852037" />
+    <state width="938" height="238" key="GridCell.Tab.1.right" timestamp="1585170852038">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
-    <state width="625" height="238" key="GridCell.Tab.1.right/0.23.1440.836@0.23.1440.836" timestamp="1585090280250" />
+    <state width="938" height="238" key="GridCell.Tab.1.right/0.23.1440.836@0.23.1440.836" timestamp="1585170852038" />
     <state x="443" y="55" key="SettingsEditor" timestamp="1585107128746">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
     <state x="443" y="55" key="SettingsEditor/0.23.1440.836@0.23.1440.836" timestamp="1585107128746" />
+    <state x="684" y="41" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1585150640878">
+      <screen x="0" y="23" width="1440" height="836" />
+    </state>
+    <state x="684" y="41" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.23.1440.836@0.23.1440.836" timestamp="1585150640878" />
     <state x="528" y="183" width="670" height="676" key="search.everywhere.popup" timestamp="1583875323159">
       <screen x="0" y="23" width="1440" height="836" />
     </state>

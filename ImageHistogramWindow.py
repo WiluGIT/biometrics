@@ -1,10 +1,6 @@
-
 import os
-from io import StringIO
-import PIL
 import matplotlib.pyplot as plt
 import numpy
-import io
 from PIL import Image
 import numpy as np
 from PIL.ImageQt import ImageQt
@@ -72,14 +68,26 @@ class Ui_ImageProcessingWindow(object):
         self.valueButton.setGeometry(QtCore.QRect(410, 700, 113, 32))
         self.valueButton.setObjectName("valueButton")
         self.histogramButton = QtWidgets.QPushButton(self.centralwidget)
-        self.histogramButton.setGeometry(QtCore.QRect(530,670,113,32))
+        self.histogramButton.setGeometry(QtCore.QRect(530,640,113,32))
         self.histogramButton.setObjectName("histogramButton")
         self.brightenButton= QtWidgets.QPushButton(self.centralwidget)
         self.brightenButton.setGeometry(QtCore.QRect(530, 700, 113,32))
         self.brightenButton.setObjectName("brightenButton")
         self.darkenButton = QtWidgets.QPushButton(self.centralwidget)
-        self.darkenButton.setGeometry(QtCore.QRect(640, 640, 113, 32))
+        self.darkenButton.setGeometry(QtCore.QRect(530,670,113,32))
         self.darkenButton.setObjectName("darkenButton")
+        self.rangeValueLabel = QtWidgets.QLabel(self.centralwidget)
+        self.rangeValueLabel.setGeometry(QtCore.QRect(650, 630, 91, 16))
+        self.rangeValueLabel.setObjectName("rangeValueLabel")
+        self.aRangeValue = QtWidgets.QLineEdit(self.centralwidget)
+        self.aRangeValue.setGeometry(QtCore.QRect(660, 650, 30, 16))
+        self.aRangeValue.setObjectName("aRangeValue")
+        self.bRangeValue = QtWidgets.QLineEdit(self.centralwidget)
+        self.bRangeValue.setGeometry(QtCore.QRect(710, 650, 30, 16))
+        self.bRangeValue.setObjectName("bRangeValue")
+        self.stretchButton = QtWidgets.QPushButton(self.centralwidget)
+        self.stretchButton.setGeometry(QtCore.QRect(650, 670, 135, 32))
+        self.stretchButton.setObjectName("stretchButton")
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(ImageProcessingWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
@@ -104,6 +112,7 @@ class Ui_ImageProcessingWindow(object):
         self.histogramButton.clicked.connect(self.create_histogram)
         self.brightenButton.clicked.connect(self.brighten_img)
         self.darkenButton.clicked.connect(self.darken_img)
+        self.stretchButton.clicked.connect(self.stretch_histogram)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
         ImageProcessingWindow.setWindowTitle(_translate("ImageProcessingWindow", "Image Processing"))
@@ -122,6 +131,108 @@ class Ui_ImageProcessingWindow(object):
         self.histogramButton.setText(_translate("ImageProcessingWindow", "Plot histogram"))
         self.brightenButton.setText(_translate("ImageProcessingWindow", "Brighten Image"))
         self.darkenButton.setText(_translate("ImageProcessingWindow", "Darken Image"))
+        self.rangeValueLabel.setText(_translate("ImageProcessingWindow", "Range a to b"))
+        self.stretchButton.setText(_translate("ImageProcessingWindow", "Stretch histogram"))
+        self.aRangeValue.setText("0")
+        self.bRangeValue.setText("255")
+        my_regex = QtCore.QRegExp("([0-9]|[1-8][0-9]|9[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])")
+        my_validator = QtGui.QRegExpValidator(my_regex, self.aRangeValue)
+        self.aRangeValue.setValidator(my_validator)
+        my_validator = QtGui.QRegExpValidator(my_regex, self.bRangeValue)
+        self.bRangeValue.setValidator(my_validator)
+
+
+    def stretch_histogram(self):
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+
+        pix_val = list(img.getdata())
+
+        r = []
+        g = []
+        b = []
+        for i in range(len(pix_val)):
+            r.append(pix_val[i][0])
+            g.append(pix_val[i][1])
+            b.append(pix_val[i][2])
+
+        r_lut = self.calc_lut(r)
+        g_lut = self.calc_lut(g)
+        b_lut = self.calc_lut(b)
+
+        result = []
+        for i in range(len(r_lut)):
+            tup = (r_lut[i], g_lut[i], b_lut[i])
+            result.append(tup)
+
+        image = Image.new('RGB', img.size)
+        image.putdata(result)
+
+        image.save("Histogram_img/strached.png")
+        print("Saved image.")
+        pix = QtGui.QPixmap("Histogram_img/strached.png")
+        self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        scaled_pixmap = pix.scaled(800, 620)
+        self.photo.setPixmap(scaled_pixmap)
+        self.sizeBox.setCurrentIndex(3)
+        self.sizeBox.hide()
+        self.sizeBox.show()
+        self.photo.hide()
+        self.photo.show()
+
+        coloured = self.check_coloured(pix_val)
+
+        if not coloured:
+            gray = []
+            for i in range(len(result)):
+                gray.append(result[i][0])
+            px = self.count_pixels_histogram_without_zeros(gray)
+            px[0] = 0
+            px[255] = 0
+            plt.bar(list(px.keys()), px.values(), color='gray')
+            plt.title('GREYSCALE STRACHED', size=16, y=1.1)
+            plt.tight_layout()
+            plt.show()
+        else:
+            r = self.count_pixels_histogram_without_zeros(r_lut)
+            r[0] = 0
+            r[255] = 0
+
+            plt.subplot(3, 1, 1)
+            plt.title('RED STRACHED', size=16, y=1.12)
+            plt.bar(list(r.keys()), r.values(), color='r')
+
+            g = self.count_pixels_histogram_without_zeros(g_lut)
+            g[0] = 0
+            g[255] = 0
+            plt.subplot(3, 1, 2)
+            plt.title('GREEN STRACHED', size=16, y=1.12)
+            plt.bar(list(g.keys()), g.values(), color='g')
+
+            b = self.count_pixels_histogram_without_zeros(b_lut)
+            b[0] = 0
+            b[255] = 0
+            plt.subplot(3, 1, 3)
+            plt.title('BLUE STRACHED', size=16, y=1.12)
+            plt.bar(list(b.keys()), b.values(), color='b')
+
+            plt.tight_layout()
+            plt.show()
+
+    def calc_lut(self, array):
+        a_range = int(self.aRangeValue.text())
+        b_range = int(self.bRangeValue.text())
+        result = []
+        for i in range(len(array)):
+            if array[i] < a_range:
+                newVal = int(((a_range - a_range) / (b_range - a_range)) * 255)
+            elif array[i] > b_range:
+                newVal = int(((b_range - a_range) / (b_range - a_range)) * 255)
+            else:
+                newVal = int(((array[i] - a_range) / (b_range - a_range)) * 255)
+            result.append(newVal)
+
+        return result
 
     def brighten_img(self):
         img = Image.open(self.pathLabel.text(), "r")
@@ -138,6 +249,7 @@ class Ui_ImageProcessingWindow(object):
             tup = (elems[0], elems[1], elems[2])
             transformed_pic.append(tup)
 
+        print("transofmed {}".format(len(transformed_pic)))
         image = Image.new('RGB', img.size)
         image.putdata(transformed_pic)
 
@@ -191,18 +303,26 @@ class Ui_ImageProcessingWindow(object):
             image = Image.open(self.pathLabel.text(), "r")
             image = image.convert("RGB")
             pix_val = list(image.getdata())
-
             # check whether image is rgb or grayscale
             coloured = self.check_coloured(pix_val)
 
             if not coloured:
-                pix_val_flat = [x for sets in pix_val for x in sets]
-
-                pixel_dic = self.count_pixels_histogram(pix_val_flat)
-                plt.bar(list(pixel_dic.keys()), pixel_dic.values(), color='gray')
+                gray = []
+                for i in range(len(pix_val)):
+                    gray.append(pix_val[i][0])
+                px = self.count_pixels_histogram(gray)
+                plt.bar(list(px.keys()), px.values(), color='gray')
                 plt.title('GREYSCALE', size=16, y=1.1)
                 plt.tight_layout()
                 plt.show()
+
+
+                # pix_val_flat = [x for sets in pix_val for x in sets]
+                # pixel_dic = self.count_pixels_histogram(pix_val_flat)
+                # plt.bar(list(pixel_dic.keys()), pixel_dic.values(), color='gray')
+                # plt.title('GREYSCALE', size=16, y=1.1)
+                # plt.tight_layout()
+                # plt.show()
             else:
                 r = []
                 g = []
@@ -211,6 +331,7 @@ class Ui_ImageProcessingWindow(object):
                     r.append(pix_val[i][0])
                     g.append(pix_val[i][1])
                     b.append(pix_val[i][2])
+
 
                 r = self.count_pixels_histogram(r)
                 plt.subplot(3, 1, 1)
@@ -287,6 +408,15 @@ class Ui_ImageProcessingWindow(object):
             hist[i] = hist.get(i, 0) + 1
         return hist
 
+    def count_pixels_histogram_without_zeros(self, seq):
+        hist = {}
+        for i in seq:
+            hist[i] = hist.get(i, 0) + 1
+        sort_dic = {}
+        for j in sorted(hist):
+            sort_dic.update({j: hist[j]})
+        return sort_dic
+
     def avaraged_histogram(self, r, g, b):
         hist = dict([(x, 0) for x in range(256)])
         for i in range(len(r)):
@@ -326,10 +456,9 @@ class Ui_ImageProcessingWindow(object):
 
         filter = "JPG (*.jpg);;JPEG (*jpeg);;GIF (*.gif);;PNG(*.png);;BMP (*.bmp);; TIF (*.tif);; TIFF(*.tiff)"
         filename = QFileDialog.getSaveFileName(caption = "Save Image", directory = os.curdir, filter=filter)
-        print(filename)
         pixmap = self.photo.pixmap()
         result = pixmap.save(filename[0])
-        print(result)
+
 
 
     def size_combo_box(self):
