@@ -55,12 +55,26 @@ class Ui_ImageProcessingWindow(object):
         self.sizeBox.addItem("")
         self.sizeBox.addItem("")
         self.sizeBox.addItem("")
+        self.greyscaleBox = QtWidgets.QComboBox(self.centralwidget)
+        self.greyscaleBox.setGeometry(QtCore.QRect(810, 35, 104, 26))
+        self.greyscaleBox.setObjectName("greyscaleBox")
+        self.greyscaleBox.addItem("")
+        self.greyscaleBox.addItem("")
+        self.greyscaleBox.addItem("")
+        self.greyscaleBox.addItem("")
+        self.greyscaleBox.addItem("")
         self.tresholdLabel = QtWidgets.QLabel(self.centralwidget)
         self.tresholdLabel.setGeometry(QtCore.QRect(820, 10, 150, 16))
         self.tresholdLabel.setObjectName("tresholdLabel")
         self.tresholdValueLabel = QtWidgets.QLabel(self.centralwidget)
-        self.tresholdValueLabel.setGeometry(QtCore.QRect(820, 40, 150, 16))
+        self.tresholdValueLabel.setGeometry(QtCore.QRect(820, 70, 150, 16))
         self.tresholdValueLabel.setObjectName("tresholdLabel")
+        self.windowValueLabel = QtWidgets.QLabel(self.centralwidget)
+        self.windowValueLabel.setGeometry(QtCore.QRect(820, 170, 78, 16))
+        self.windowValueLabel.setObjectName("windowValueLabel")
+        self.kValueLabel = QtWidgets.QLabel(self.centralwidget)
+        self.kValueLabel.setGeometry(QtCore.QRect(950, 170, 78, 16))
+        self.kValueLabel.setObjectName("kValueLabel")
         self.resizeLabel = QtWidgets.QLabel(self.centralwidget)
         self.resizeLabel.setGeometry(QtCore.QRect(150, 650, 71, 16))
         self.resizeLabel.setObjectName("resizeLabel")
@@ -88,6 +102,9 @@ class Ui_ImageProcessingWindow(object):
         self.darkenButton = QtWidgets.QPushButton(self.centralwidget)
         self.darkenButton.setGeometry(QtCore.QRect(530,670,113,32))
         self.darkenButton.setObjectName("darkenButton")
+        self.niblackButton = QtWidgets.QPushButton(self.centralwidget)
+        self.niblackButton.setGeometry(QtCore.QRect(810,210,135,32))
+        self.niblackButton.setObjectName("niblackButton")
         self.rangeValueLabel = QtWidgets.QLabel(self.centralwidget)
         self.rangeValueLabel.setGeometry(QtCore.QRect(650, 630, 91, 16))
         self.rangeValueLabel.setObjectName("rangeValueLabel")
@@ -98,20 +115,30 @@ class Ui_ImageProcessingWindow(object):
         self.bRangeValue.setGeometry(QtCore.QRect(710, 650, 30, 16))
         self.bRangeValue.setObjectName("bRangeValue")
         self.tresholdValueText = QtWidgets.QLineEdit(self.centralwidget)
-        self.tresholdValueText.setGeometry(QtCore.QRect(820, 70, 30, 16))
+        self.tresholdValueText.setGeometry(QtCore.QRect(820, 100, 30, 16))
         self.tresholdValueText.setObjectName("aRangeValue")
+        self.windowValueText = QtWidgets.QLineEdit(self.centralwidget)
+        self.windowValueText.setGeometry(QtCore.QRect(820, 190, 30, 16))
+        self.windowValueText.setObjectName("windowValueText")
+        self.kValueText = QtWidgets.QLineEdit(self.centralwidget)
+        self.kValueText.setGeometry(QtCore.QRect(950, 190, 30, 16))
+        self.kValueText.setObjectName("kValueText")
         self.basicTresholdButton = QtWidgets.QPushButton(self.centralwidget)
-        self.basicTresholdButton.setGeometry(QtCore.QRect(870, 64, 135, 32))
+        self.basicTresholdButton.setGeometry(QtCore.QRect(870, 94, 135, 32))
         self.basicTresholdButton.setObjectName("basicTresholdButton")
         self.otsuTresholdButton = QtWidgets.QPushButton(self.centralwidget)
-        self.otsuTresholdButton.setGeometry(QtCore.QRect(810, 100, 135, 32))
+        self.otsuTresholdButton.setGeometry(QtCore.QRect(810, 130, 135, 32))
         self.otsuTresholdButton.setObjectName("otsuTresholdButton")
+        self.greyscaleButton = QtWidgets.QPushButton(self.centralwidget)
+        self.greyscaleButton.setGeometry(QtCore.QRect(910, 32, 135, 32))
+        self.greyscaleButton.setObjectName("greyscaleButton")
         self.stretchButton = QtWidgets.QPushButton(self.centralwidget)
         self.stretchButton.setGeometry(QtCore.QRect(650, 670, 135, 32))
         self.stretchButton.setObjectName("stretchButton")
         self.equalizationButton = QtWidgets.QPushButton(self.centralwidget)
         self.equalizationButton.setGeometry(QtCore.QRect(650, 700, 135, 32))
         self.equalizationButton.setObjectName("equalizationButton")
+
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(ImageProcessingWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
@@ -140,6 +167,7 @@ class Ui_ImageProcessingWindow(object):
         self.equalizationButton.clicked.connect(self.equalize_histogram)
         self.basicTresholdButton.clicked.connect(self.value_threshold)
         self.otsuTresholdButton.clicked.connect(self.otsu_threshold)
+        self.greyscaleButton.clicked.connect(self.turn_greyscale)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
         ImageProcessingWindow.setWindowTitle(_translate("ImageProcessingWindow", "Image Processing"))
@@ -150,7 +178,14 @@ class Ui_ImageProcessingWindow(object):
         self.sizeBox.setItemText(1, _translate("ImageProcessingWindow", "2x"))
         self.sizeBox.setItemText(2, _translate("ImageProcessingWindow", "4x"))
         self.sizeBox.setItemText(3, _translate("ImageProcessingWindow", "8x"))
+        self.greyscaleBox.setItemText(0, _translate("ImageProcessingWindow", "Mean"))
+        self.greyscaleBox.setItemText(1, _translate("ImageProcessingWindow", "Lum"))
+        self.greyscaleBox.setItemText(2, _translate("ImageProcessingWindow", "Red"))
+        self.greyscaleBox.setItemText(3, _translate("ImageProcessingWindow", "Green"))
+        self.greyscaleBox.setItemText(4, _translate("ImageProcessingWindow", "Blue"))
         self.tresholdValueLabel.setText(_translate("ImageProcessingWindow", "Threshold value:"))
+        self.windowValueLabel.setText(_translate("ImageProcessingWindow", "Window size:"))
+        self.kValueLabel.setText(_translate("ImageProcessingWindow", "k paremeter:"))
         self.tresholdLabel.setText(_translate("ImageProcessingWindow", "Threshold section:"))
         self.resizeLabel.setText(_translate("ImageProcessingWindow", "Select size:"))
         self.pixelLabel.setText(_translate("ImageProcessingWindow", "Selected pixel:"))
@@ -165,10 +200,15 @@ class Ui_ImageProcessingWindow(object):
         self.equalizationButton.setText(_translate("ImageProcessingWindow", "Equalize histogram"))
         self.basicTresholdButton.setText(_translate("ImageProcessingWindow", "Value threshold"))
         self.otsuTresholdButton.setText(_translate("ImageProcessingWindow", "Otsu threshold"))
+        self.niblackButton.setText(_translate("ImageProcessingWindow", "Niblack threshold"))
+        self.greyscaleButton.setText(_translate("ImageProcessingWindow", "Turn greyscale"))
+
 
         self.aRangeValue.setText("0")
         self.bRangeValue.setText("255")
         self.tresholdValueText.setText("0")
+        self.kValueText.setText("0")
+        self.windowValueText.setText("0")
         my_regex = QtCore.QRegExp("([0-9]|[1-8][0-9]|9[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])")
         my_validator = QtGui.QRegExpValidator(my_regex, self.aRangeValue)
         self.aRangeValue.setValidator(my_validator)
@@ -177,9 +217,11 @@ class Ui_ImageProcessingWindow(object):
         my_validator = QtGui.QRegExpValidator(my_regex, self.tresholdValueText)
         self.tresholdValueText.setValidator(my_validator)
 
+
+
     def otsu_threshold(self):
-        img = Image.open(self.pathLabel.text(), "r")
-        img = img.convert("L")
+        self.turn_greyscale()
+        img = Image.open("Threshold_img/greyscale.png", "r")
         pix_val = list(img.getdata())
 
         hist = self.count_pixels_histogram(pix_val)
@@ -254,15 +296,12 @@ class Ui_ImageProcessingWindow(object):
         plt.tight_layout()
         plt.show()
 
-
-
     def value_threshold(self):
-        img = Image.open(self.pathLabel.text(), "r")
-        img = img.convert("L")
-        threshold = int(self.tresholdValueText.text())
+        self.turn_greyscale()
+        img = Image.open("Threshold_img/greyscale.png", "r")
+
         pix_val = list(img.getdata())
-        #build in function
-        #imt = img.point(lambda p: p > threshold and 255)
+        threshold = int(self.tresholdValueText.text())
 
         for i in range(len(pix_val)):
             if pix_val[i] < threshold:
@@ -301,6 +340,50 @@ class Ui_ImageProcessingWindow(object):
 
         plt.tight_layout()
         plt.show()
+
+    def turn_greyscale(self):
+        index = int(self.greyscaleBox.currentIndex())
+
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+
+        pix_val = list(img.getdata())
+
+        result_greyscale = []
+        if index == 0:
+            for i in range(len(pix_val)):
+                val = int((pix_val[i][0] + pix_val[i][1] + pix_val[i][2]) / 3)
+                result_greyscale.append(val)
+        elif index == 1:
+            for i in range(len(pix_val)):
+                val = int((0.2126 * pix_val[i][0]) + (0.7152 * pix_val[i][1]) + (0.0722 * pix_val[i][2]))
+                result_greyscale.append(val)
+        elif index == 2:
+            for i in range(len(pix_val)):
+                val = int(pix_val[i][0])
+                result_greyscale.append(val)
+        elif index == 3:
+            for i in range(len(pix_val)):
+                val = int(pix_val[i][1])
+                result_greyscale.append(val)
+        elif index == 4:
+            for i in range(len(pix_val)):
+                val = int(pix_val[i][2])
+                result_greyscale.append(val)
+
+        greyscale_img = Image.new('L', img.size)
+        greyscale_img.putdata(result_greyscale)
+
+        greyscale_img.save("Threshold_img/greyscale.png")
+        pix = QtGui.QPixmap("Threshold_img/greyscale.png")
+        self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        scaled_pixmap = pix.scaled(800, 620)
+        self.photo.setPixmap(scaled_pixmap)
+        self.sizeBox.setCurrentIndex(3)
+        self.sizeBox.hide()
+        self.sizeBox.show()
+        self.photo.hide()
+        self.photo.show()
 
     def equ_lut(self, dist):
         result = []
@@ -602,7 +685,6 @@ class Ui_ImageProcessingWindow(object):
 
             msg.exec_()
 
-
     def darken_img(self):
         try:
             img = Image.open(self.pathLabel.text(), "r")
@@ -642,10 +724,6 @@ class Ui_ImageProcessingWindow(object):
             msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
 
             msg.exec_()
-
-
-
-
 
     def create_histogram(self):
         try:
@@ -776,8 +854,7 @@ class Ui_ImageProcessingWindow(object):
             self.photo.setPixmap(pix_final)
             self.photo.hide()
             self.photo.show()
-            # ImageProcessingWindow.hide()
-            # ImageProcessingWindow.show()
+
 
     def show_color_dialog(self):
         selected_color = QColorDialog.getColor()
@@ -825,7 +902,6 @@ class Ui_ImageProcessingWindow(object):
             smaller_pixmap = pixmap.scaled(800, 620)
             self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
             self.photo.setPixmap(smaller_pixmap)
-
 
         # version without quality lose
         # if index == 0:
