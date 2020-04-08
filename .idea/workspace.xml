@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7025cc10-03d6-487d-9cf5-3e7de567bc53" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Biometrics.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Biometrics.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ImageTresholdWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/ImageTresholdWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Threshold_img/greyscale.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Threshold_img/greyscale.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Threshold_img/greyscale.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Threshold_img/otsu_threshold.png" beforeDir="false" afterPath="$PROJECT_DIR$/Threshold_img/otsu_threshold.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Threshold_img/value_threshold.png" beforeDir="false" afterPath="$PROJECT_DIR$/Threshold_img/value_threshold.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +39,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager" selected="Python.ImageTresholdWindow">
     <configuration name="ImageHistogramWindow" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -87,9 +91,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Python\Python38-32\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ImageTresholdWindow.py" />
@@ -145,6 +149,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="759" y="134" key="#ImageTresholdWindow" timestamp="1586343769534">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="759" y="134" key="#ImageTresholdWindow/0.0.1920.1040@0.0.1920.1040" timestamp="1586343769534" />
     <state x="384" y="70" key="#Notifications" timestamp="1585086759773">
       <screen x="0" y="23" width="1440" height="836" />
     </state>
@@ -161,41 +169,50 @@
       <screen x="0" y="23" width="1440" height="836" />
     </state>
     <state width="657" height="466" key="DebuggerActiveHint/0.23.1440.836@0.23.1440.836" timestamp="1585191232687" />
-    <state width="1224" height="183" key="GridCell.Tab.0.bottom" timestamp="1586309873918">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="199" key="GridCell.Tab.0.bottom" timestamp="1586389654504">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="199" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1586389654504" />
     <state width="1224" height="183" key="GridCell.Tab.0.bottom/0.23.1440.836@0.23.1440.836" timestamp="1586309873918" />
-    <state width="1224" height="183" key="GridCell.Tab.0.center" timestamp="1586309873915">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="199" key="GridCell.Tab.0.center" timestamp="1586389654501">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="199" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1586389654501" />
     <state width="1224" height="183" key="GridCell.Tab.0.center/0.23.1440.836@0.23.1440.836" timestamp="1586309873915" />
-    <state width="1224" height="183" key="GridCell.Tab.0.left" timestamp="1586309873914">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="199" key="GridCell.Tab.0.left" timestamp="1586389654497">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="199" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1586389654497" />
     <state width="1224" height="183" key="GridCell.Tab.0.left/0.23.1440.836@0.23.1440.836" timestamp="1586309873914" />
-    <state width="1224" height="183" key="GridCell.Tab.0.right" timestamp="1586309873917">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="199" key="GridCell.Tab.0.right" timestamp="1586389654501">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="199" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1586389654501" />
     <state width="1224" height="183" key="GridCell.Tab.0.right/0.23.1440.836@0.23.1440.836" timestamp="1586309873917" />
-    <state width="1224" height="199" key="GridCell.Tab.1.bottom" timestamp="1586308571933">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="356" key="GridCell.Tab.1.bottom" timestamp="1586361625574">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="356" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1586361625574" />
     <state width="1224" height="199" key="GridCell.Tab.1.bottom/0.23.1440.836@0.23.1440.836" timestamp="1586308571933" />
-    <state width="1224" height="199" key="GridCell.Tab.1.center" timestamp="1586308571933">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="356" key="GridCell.Tab.1.center" timestamp="1586361625574">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="356" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1586361625574" />
     <state width="1224" height="199" key="GridCell.Tab.1.center/0.23.1440.836@0.23.1440.836" timestamp="1586308571933" />
-    <state width="1224" height="199" key="GridCell.Tab.1.left" timestamp="1586308571932">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="356" key="GridCell.Tab.1.left" timestamp="1586361625574">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="356" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1586361625574" />
     <state width="1224" height="199" key="GridCell.Tab.1.left/0.23.1440.836@0.23.1440.836" timestamp="1586308571932" />
-    <state width="1224" height="199" key="GridCell.Tab.1.right" timestamp="1586308571933">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state width="803" height="356" key="GridCell.Tab.1.right" timestamp="1586361625574">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state width="803" height="356" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1586361625574" />
     <state width="1224" height="199" key="GridCell.Tab.1.right/0.23.1440.836@0.23.1440.836" timestamp="1586308571933" />
-    <state x="443" y="55" key="SettingsEditor" timestamp="1585107128746">
-      <screen x="0" y="23" width="1440" height="836" />
+    <state x="591" y="40" key="SettingsEditor" timestamp="1586343909394">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="591" y="40" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1586343909394" />
     <state x="443" y="55" key="SettingsEditor/0.23.1440.836@0.23.1440.836" timestamp="1585107128746" />
     <state x="684" y="41" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1585150640878">
       <screen x="0" y="23" width="1440" height="836" />
@@ -205,5 +222,16 @@
       <screen x="0" y="23" width="1440" height="836" />
     </state>
     <state x="528" y="183" width="670" height="676" key="search.everywhere.popup/0.23.1440.836@0.23.1440.836" timestamp="1583875323159" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

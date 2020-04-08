@@ -5,12 +5,12 @@ import numpy
 from PIL import Image
 import numpy as np
 from PIL.ImageQt import ImageQt
-
+import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QBuffer, QIODevice
 from PyQt5.QtWidgets import QInputDialog, QFileDialog, QLabel, QColorDialog, QApplication, QMessageBox
 from PyQt5.QtGui import QPixmap, QImage, QColor, QPalette, QPainter
-
+from skimage.filters import (threshold_niblack)
 class Ui_ImageProcessingWindow(object):
     clicked_pixel_x = None
     clicked_pixel_y = None
@@ -130,7 +130,7 @@ class Ui_ImageProcessingWindow(object):
         self.otsuTresholdButton.setGeometry(QtCore.QRect(810, 130, 135, 32))
         self.otsuTresholdButton.setObjectName("otsuTresholdButton")
         self.greyscaleButton = QtWidgets.QPushButton(self.centralwidget)
-        self.greyscaleButton.setGeometry(QtCore.QRect(910, 32, 135, 32))
+        self.greyscaleButton.setGeometry(QtCore.QRect(930, 32, 135, 32))
         self.greyscaleButton.setObjectName("greyscaleButton")
         self.stretchButton = QtWidgets.QPushButton(self.centralwidget)
         self.stretchButton.setGeometry(QtCore.QRect(650, 670, 135, 32))
@@ -138,6 +138,7 @@ class Ui_ImageProcessingWindow(object):
         self.equalizationButton = QtWidgets.QPushButton(self.centralwidget)
         self.equalizationButton.setGeometry(QtCore.QRect(650, 700, 135, 32))
         self.equalizationButton.setObjectName("equalizationButton")
+
 
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(ImageProcessingWindow)
@@ -207,9 +208,9 @@ class Ui_ImageProcessingWindow(object):
 
         self.aRangeValue.setText("0")
         self.bRangeValue.setText("255")
-        self.tresholdValueText.setText("0")
-        self.kValueText.setText("0")
-        self.windowValueText.setText("0")
+        self.tresholdValueText.setText("150")
+        self.kValueText.setText("-0.5")
+        self.windowValueText.setText("3")
         my_regex = QtCore.QRegExp("([0-9]|[1-8][0-9]|9[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])")
         my_validator = QtGui.QRegExpValidator(my_regex, self.aRangeValue)
         self.aRangeValue.setValidator(my_validator)
@@ -221,45 +222,37 @@ class Ui_ImageProcessingWindow(object):
 
     def niblack_threshold(self):
         window_val = int(self.windowValueText.text())
-        k_val = int(self.kValueText.text())
+        k_val = float(self.kValueText.text())
 
         self.turn_greyscale()
         img = Image.open("Threshold_img/greyscale.jpg", "r")
-        pix_val = list(img.getdata())
         image_matrix = numpy.array(img)
-        # print("{} r and  {} c ".format(image_matrix.shape[0], image_matrix.shape[1]))
 
-        # x = np.ones((3,3))
         pad_w = int(window_val / 2)
-        x = np.pad(image_matrix, pad_width=pad_w, mode="constant", constant_values=-5)
-        print(x)
-        window = 3
-        k_st = 0.8
-        print(pad_w)
 
+        x = np.pad(image_matrix, pad_width=pad_w, mode="constant", constant_values=0)
+        counter_mask = window_val * window_val
         k_counter = 0
         l_counter = 0
 
-        for i in range(pad_w,len(x)-pad_w):
-            for j in range(pad_w,len(x[0])-pad_w):
+        for i in range(pad_w, len(x) - pad_w):
+            for j in range(pad_w, len(x[0]) - pad_w):
                 avarage = 0
                 std_div = 0
-                counter_mask = 0
                 sum = 0
                 for k in range(window_val):
                     for l in range(window_val):
-                        if x[k+k_counter][l+l_counter] >= 0:
-                            sum += x[k+k_counter][l+l_counter]
-                            counter_mask += 1
+                        sum += x[k + k_counter][l + l_counter]
+
+
                 avarage = sum / counter_mask
                 sum = 0
                 for k in range(window_val):
                     for l in range(window_val):
-                        if x[k + k_counter][l + l_counter] >= 0:
-                            sum += pow(x[k + k_counter][l + l_counter] - avarage,2)
+                        sum += pow(x[k + k_counter][l + l_counter] - avarage, 2)
 
-                std_div = sum / counter_mask
-                threshold = int(avarage + (k_st * std_div))
+                std_div = math.sqrt(sum / counter_mask)
+                threshold = avarage + (k_val * std_div)
 
                 if x[i][j] < threshold:
                     x[i][j] = 0
@@ -269,13 +262,102 @@ class Ui_ImageProcessingWindow(object):
             k_counter += 1
             l_counter = 0
 
-        img = Image.fromarray(x, 'L')
-        img.show()
+        threshold_array_sl = x[pad_w:x.shape[0]-pad_w, pad_w:x.shape[1]-pad_w]
+        img_tr = Image.fromarray(threshold_array_sl, 'L')
+        img_tr.save("Threshold_img/niblack_threshold.png")
+        print("Saved image.")
+
+        # save in folder
+        pix = QtGui.QPixmap("Threshold_img/niblack_threshold.png")
+        self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        scaled_pixmap = pix.scaled(800, 620)
+        self.photo.setPixmap(scaled_pixmap)
+        self.sizeBox.setCurrentIndex(3)
+        self.sizeBox.hide()
+        self.sizeBox.show()
+        self.photo.hide()
+        self.photo.show()
+        # plot
+        plt.subplot(2, 1, 1)
+        plt.title('Before niblack threshold', size=16, y=1.12)
+        plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+
+        plt.subplot(2, 1, 2)
+        plt.title('After niblack threshold', size=16, y=1.12)
+        plt.imshow(img_tr, cmap='gray', vmin=0, vmax=255)
+
+        plt.tight_layout()
+        plt.show()
 
 
+    def niblack_v2(self):
+        #pioterowa
+        window_val = int(self.windowValueText.text())
+        k_val = float(self.kValueText.text())
 
+        self.turn_greyscale()
+        img = Image.open("Threshold_img/greyscale.jpg", "r")
+        image_matrix = numpy.array(img)
+        pad_w = int(window_val / 2)
+        counter_mask = window_val * window_val
 
+        threshold_array = np.zeros((image_matrix.shape[0], image_matrix.shape[1]))
 
+        for i in range(image_matrix.shape[0]):
+            for j in range(image_matrix.shape[1]):
+                avarage = 0
+                std_div = 0
+                sum = 0
+                try:
+                    for k in range(-1 * pad_w, pad_w + 1):
+                        for l in range(-1 * pad_w, pad_w + 1):
+                            sum += image_matrix[i + k, j + l]
+                except:
+                    sum += 0
+
+                avarage = sum / counter_mask
+                var = 0
+                try:
+                    for k in range(window_val):
+                        for l in range(window_val):
+                            var += pow(image_matrix[i+k, j+l] - avarage, 2)
+                except:
+                    sum += pow(0-avarage, 2)
+
+                variance = var / counter_mask
+                std_div = np.sqrt(variance)
+                threshold = avarage + (k_val * std_div)
+
+                if image_matrix[i][j] < threshold:
+                    image_matrix[i][j] = 0
+                elif image_matrix[i][j] >= threshold:
+                    image_matrix[i][j] = 255
+
+        img_tr = Image.fromarray(image_matrix, 'L')
+        img_tr.save("Threshold_img/niblack_threshold.png")
+        print("Saved image.")
+
+        # save in folder
+        pix = QtGui.QPixmap("Threshold_img/niblack_threshold.png")
+        self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        scaled_pixmap = pix.scaled(800, 620)
+        self.photo.setPixmap(scaled_pixmap)
+        self.sizeBox.setCurrentIndex(3)
+        self.sizeBox.hide()
+        self.sizeBox.show()
+        self.photo.hide()
+        self.photo.show()
+        # plot
+        plt.subplot(2, 1, 1)
+        plt.title('Before niblack threshold', size=16, y=1.12)
+        plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+
+        plt.subplot(2, 1, 2)
+        plt.title('After niblack threshold', size=16, y=1.12)
+        plt.imshow(img_tr, cmap='gray', vmin=0, vmax=255)
+
+        plt.tight_layout()
+        plt.show()
 
 
 
