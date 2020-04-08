@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-
+from matplotlib import cm
 import numpy
 from PIL import Image
 import numpy as np
@@ -167,6 +167,7 @@ class Ui_ImageProcessingWindow(object):
         self.equalizationButton.clicked.connect(self.equalize_histogram)
         self.basicTresholdButton.clicked.connect(self.value_threshold)
         self.otsuTresholdButton.clicked.connect(self.otsu_threshold)
+        self.niblackButton.clicked.connect(self.niblack_threshold)
         self.greyscaleButton.clicked.connect(self.turn_greyscale)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -218,10 +219,69 @@ class Ui_ImageProcessingWindow(object):
         self.tresholdValueText.setValidator(my_validator)
 
 
+    def niblack_threshold(self):
+        window_val = int(self.windowValueText.text())
+        k_val = int(self.kValueText.text())
+
+        self.turn_greyscale()
+        img = Image.open("Threshold_img/greyscale.jpg", "r")
+        pix_val = list(img.getdata())
+        image_matrix = numpy.array(img)
+        # print("{} r and  {} c ".format(image_matrix.shape[0], image_matrix.shape[1]))
+
+        # x = np.ones((3,3))
+        pad_w = int(window_val / 2)
+        x = np.pad(image_matrix, pad_width=pad_w, mode="constant", constant_values=-5)
+        print(x)
+        window = 3
+        k_st = 0.8
+        print(pad_w)
+
+        k_counter = 0
+        l_counter = 0
+
+        for i in range(pad_w,len(x)-pad_w):
+            for j in range(pad_w,len(x[0])-pad_w):
+                avarage = 0
+                std_div = 0
+                counter_mask = 0
+                sum = 0
+                for k in range(window_val):
+                    for l in range(window_val):
+                        if x[k+k_counter][l+l_counter] >= 0:
+                            sum += x[k+k_counter][l+l_counter]
+                            counter_mask += 1
+                avarage = sum / counter_mask
+                sum = 0
+                for k in range(window_val):
+                    for l in range(window_val):
+                        if x[k + k_counter][l + l_counter] >= 0:
+                            sum += pow(x[k + k_counter][l + l_counter] - avarage,2)
+
+                std_div = sum / counter_mask
+                threshold = int(avarage + (k_st * std_div))
+
+                if x[i][j] < threshold:
+                    x[i][j] = 0
+                elif x[i][j] >= threshold:
+                    x[i][j] = 255
+                l_counter += 1
+            k_counter += 1
+            l_counter = 0
+
+        img = Image.fromarray(x, 'L')
+        img.show()
+
+
+
+
+
+
+
 
     def otsu_threshold(self):
         self.turn_greyscale()
-        img = Image.open("Threshold_img/greyscale.png", "r")
+        img = Image.open("Threshold_img/greyscale.jpg", "r")
         pix_val = list(img.getdata())
 
         hist = self.count_pixels_histogram(pix_val)
@@ -298,7 +358,7 @@ class Ui_ImageProcessingWindow(object):
 
     def value_threshold(self):
         self.turn_greyscale()
-        img = Image.open("Threshold_img/greyscale.png", "r")
+        img = Image.open("Threshold_img/greyscale.jpg", "r")
 
         pix_val = list(img.getdata())
         threshold = int(self.tresholdValueText.text())
@@ -374,8 +434,8 @@ class Ui_ImageProcessingWindow(object):
         greyscale_img = Image.new('L', img.size)
         greyscale_img.putdata(result_greyscale)
 
-        greyscale_img.save("Threshold_img/greyscale.png")
-        pix = QtGui.QPixmap("Threshold_img/greyscale.png")
+        greyscale_img.save("Threshold_img/greyscale.jpg")
+        pix = QtGui.QPixmap("Threshold_img/greyscale.jpg")
         self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
         scaled_pixmap = pix.scaled(800, 620)
         self.photo.setPixmap(scaled_pixmap)
