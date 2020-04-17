@@ -13,6 +13,7 @@ from PyQt5.QtGui import QPixmap, QImage, QColor, QPalette, QPainter
 
 
 createdMask = []
+mask = ""
 class Ui_MaskDialog(object):
     def setupUi(self, MaskDialog):
         MaskDialog.setObjectName("MaskDialog")
@@ -52,14 +53,41 @@ class Ui_MaskDialog(object):
         self.confirmMaskButton.setText(_translate("MaskDialog", "Confirm mask"))
 
     def confirm_mask(self):
+        global mask
+        mask = ""
         mask = self.textEdit.toPlainText()
         maskArray = mask.split(",")
-        global createdMask
-        createdMask =[]
-        for i in range(len(maskArray)):
-            createdMask.append(int(maskArray[i].strip('\n')))
-        print(createdMask)
 
+        mask1d =[]
+        for i in range(len(maskArray)):
+            mask1d.append(int(maskArray[i].strip('\n')))
+        maskLen = len(mask1d)
+        global createdMask
+        createdMask = []
+        element = []
+        counter = 0
+
+        if maskLen == 9:
+            for i in range(3):
+                for j in range(3):
+                    element.append(mask1d[counter])
+                    counter += 1
+                createdMask.append(element)
+                element = []
+        elif maskLen == 25:
+            for i in range(5):
+                for j in range(5):
+                    element.append(mask1d[counter])
+                    counter += 1
+                createdMask.append(element)
+                element = []
+        elif maskLen == 49:
+            for i in range(7):
+                for j in range(7):
+                    element.append(mask1d[counter])
+                    counter += 1
+                createdMask.append(element)
+                element = []
 
     def mask_size_change(self):
         mask_index = int(self.comboBox.currentIndex())
@@ -185,6 +213,9 @@ class Ui_ImageProcessingWindow(object):
         self.rangeValueLabel = QtWidgets.QLabel(self.centralwidget)
         self.rangeValueLabel.setGeometry(QtCore.QRect(650, 630, 91, 16))
         self.rangeValueLabel.setObjectName("rangeValueLabel")
+        self.maskValueLabel = QtWidgets.QLabel(self.centralwidget)
+        self.maskValueLabel.setGeometry(QtCore.QRect(950, 310, 80, 100))
+        self.maskValueLabel.setObjectName("maskValueLabel")
         self.aRangeValue = QtWidgets.QLineEdit(self.centralwidget)
         self.aRangeValue.setGeometry(QtCore.QRect(660, 650, 30, 16))
         self.aRangeValue.setObjectName("aRangeValue")
@@ -216,7 +247,7 @@ class Ui_ImageProcessingWindow(object):
         self.equalizationButton.setGeometry(QtCore.QRect(650, 700, 135, 32))
         self.equalizationButton.setObjectName("equalizationButton")
         self.maskButton = QtWidgets.QPushButton(self.centralwidget)
-        self.maskButton.setGeometry(QtCore.QRect(870, 308, 110, 32))
+        self.maskButton.setGeometry(QtCore.QRect(820, 308, 110, 32))
         self.maskButton.setObjectName("maskButton")
         self.convolutionButton = QtWidgets.QPushButton(self.centralwidget)
         self.convolutionButton.setGeometry(QtCore.QRect(820, 350, 110, 32))
@@ -275,6 +306,7 @@ class Ui_ImageProcessingWindow(object):
         self.kValueLabel.setText(_translate("ImageProcessingWindow", "k paremeter:"))
         self.tresholdLabel.setText(_translate("ImageProcessingWindow", "Threshold section:"))
         self.filterLabel.setText(_translate("ImageProcessingWindow", "Filters section:"))
+        self.maskValueLabel.setText(_translate("ImageProcessingWindow", "No mask picked"))
         self.maskLabel.setText(_translate("ImageProcessingWindow", "Pick mask:"))
         self.resizeLabel.setText(_translate("ImageProcessingWindow", "Select size:"))
         self.pixelLabel.setText(_translate("ImageProcessingWindow", "Selected pixel:"))
@@ -310,15 +342,122 @@ class Ui_ImageProcessingWindow(object):
 
 
     def convolution_filter(self):
-        print(createdMask)
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+        np_img = np.asarray(img)
+
+        pix_val = list(img.getdata())
+        coloured = self.check_coloured(pix_val)
+
+
+        maskLen = len(createdMask[0])
+
+        window_val = 0
+        if maskLen == 3:
+            window_val = 3
+        elif maskLen == 5:
+            window_val = 5
+        elif maskLen == 7:
+            window_val = 7
+
+        pad_w = int(window_val / 2)
+        mask_weight = 0
+        for k in range(window_val):
+            for l in range(window_val):
+                mask_weight += createdMask[k][l]
+        if mask_weight == 0:
+            mask_weight = 1
+
+        result_array = np.zeros(shape=(len(np_img),len(np_img[0]), 3))
+
+        if coloured:
+            k_counter = 0
+            l_counter = 0
+            for i in range(pad_w, len(np_img) - pad_w):
+                for j in range(pad_w, len(np_img[0]) - pad_w):
+                    sum_r = 0
+                    sum_g = 0
+                    sum_b = 0
+                    for k in range(window_val):
+                        for l in range(window_val):
+                            sum_r += np_img[k + k_counter][l + l_counter][0] * createdMask[k][l]
+                            sum_g += np_img[k + k_counter][l + l_counter][1] * createdMask[k][l]
+                            sum_b += np_img[k + k_counter][l + l_counter][2] * createdMask[k][l]
+
+                    pix_r = sum_r / mask_weight
+                    pix_g = sum_g / mask_weight
+                    pix_b = sum_b / mask_weight
+
+                    if pix_r > 255:
+                        pix_r = 255
+                    elif pix_r < 0:
+                        pix_r = 0
+                    if pix_g > 255:
+                        pix_g = 255
+                    elif pix_g < 0:
+                        pix_g = 0
+                    if pix_b > 255:
+                        pix_b = 255
+                    elif pix_b < 0:
+                        pix_b = 0
+
+                    result_array[i, j, 0] = pix_r
+                    result_array[i, j, 1] = pix_g
+                    result_array[i, j, 2] = pix_b
+
+                    l_counter += 1
+                k_counter += 1
+                l_counter = 0
+            img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+            img_filter.save("Filters_img/Conv_filter.png")
+            print("Saved image.")
+        else:
+            k_counter = 0
+            l_counter = 0
+            for i in range(pad_w, len(np_img) - pad_w):
+                for j in range(pad_w, len(np_img[0]) - pad_w):
+                    sum_g = 0
+                    for k in range(window_val):
+                        for l in range(window_val):
+                            sum_g += np_img[k + k_counter][l + l_counter][0] * createdMask[k][l]
+
+                    pix_g = sum_g / mask_weight
+
+                    if pix_g > 255:
+                        pix_g = 255
+                    elif pix_g < 0:
+                        pix_g = 0
+
+                    result_array[i, j, 0] = pix_g
+                    result_array[i, j, 1] = pix_g
+                    result_array[i, j, 2] = pix_g
+
+                    l_counter += 1
+                k_counter += 1
+                l_counter = 0
+
+            img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+            img_filter.save("Filters_img/Conv_greyscale_filter.png")
+            print("Saved image.")
+
+
+
+
+
+
+
     def create_mask(self):
         self.showDialog()
+
 
     def showDialog(self):
         self.window = QtWidgets.QDialog()
         self.ui = Ui_MaskDialog()
         self.ui.setupUi(self.window)
-        self.window.show()
+        #self.window.show()
+        returnCode = self.window.exec_()
+        if returnCode == 1:
+            self.maskValueLabel.setText(mask)
 
     def niblack_threshold(self):
         window_val = int(self.windowValueText.text())
@@ -1018,31 +1157,6 @@ class Ui_ImageProcessingWindow(object):
                 plt.tight_layout()
                 plt.show()
 
-
-
-                # METHOD WITH BUILT IN FUNCTION
-                # region
-                # r2, g2, b2 = image.split()
-                # dic = {}
-                # dic2 = {}
-                # dic3= {}
-                # for i in range(len(r2.histogram())):
-                #     el = r2.histogram()[i]
-                #     dic[i] = el
-                # for i in range(len(g2.histogram())):
-                #     el = g2.histogram()[i]
-                #     dic2[i] = el
-                # for i in range(len(b2.histogram())):
-                #     el = b2.histogram()[i]
-                #     dic3[i] = el
-                # plt.subplot(3, 1, 1)
-                # plt.bar(list(dic.keys()), dic.values(), color='y')
-                # plt.subplot(3, 1, 2)
-                # plt.bar(list(dic2.keys()), dic2.values(), color='y')
-                # plt.subplot(3, 1, 3)
-                # plt.bar(list(dic3.keys()), dic3.values(), color='y')
-                # plt.show()
-                # endregion
         except AttributeError:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
@@ -1145,17 +1259,6 @@ class Ui_ImageProcessingWindow(object):
             self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
             self.photo.setPixmap(smaller_pixmap)
 
-        # version without quality lose
-        # if index == 0:
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 100, 80))
-        # elif index == 1:
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 200, 160))
-        #
-        # elif index == 2:
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 400, 320))
-        #
-        # elif index == 3:
-        #     self.photo.setGeometry(QtCore.QRect(0, 0, 800, 640))
 
     def get_pixel_position(self, event):
         x = event.pos().x()
