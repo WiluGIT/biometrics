@@ -364,49 +364,110 @@ class Ui_ImageProcessingWindow(object):
         width = np_img.shape[1]
         height = np_img.shape[0]
         result_array = np.zeros(shape=(height, width, 3))
+        try:
+            maskLen = len(createdMask[0])
+            window_val = 0
+            if maskLen == 3:
+                window_val = 3
+            elif maskLen == 5:
+                window_val = 5
+            elif maskLen == 7:
+                window_val = 7
 
-        maskLen = len(createdMask[0])
+            pad_w = int(window_val / 2)
+            mask_size = window_val * window_val
+            median_index = int(((mask_size + 1) / 2) - 1)
+            r = [0] * mask_size
+            g = [0] * mask_size
+            b = [0] * mask_size
+            if coloured:
+                for i in range(pad_w, height - pad_w):
+                    for j in range(pad_w, width - pad_w):
+                        mask_count = 0
+                        for k in range(window_val):
+                            for l in range(window_val):
+                                r[mask_count] = np_img[i + k - pad_w][j + l - pad_w][0]
+                                g[mask_count] = np_img[i + k - pad_w][j + l - pad_w][1]
+                                b[mask_count] = np_img[i + k - pad_w][j + l - pad_w][2]
+                                mask_count += 1
 
-        window_val = 0
-        if maskLen == 3:
-            window_val = 3
-        elif maskLen == 5:
-            window_val = 5
-        elif maskLen == 7:
-            window_val = 7
+                        r.sort()
+                        g.sort()
+                        b.sort()
 
-        pad_w = int(window_val / 2)
-        mask_size = window_val * window_val
-        median_index = int(((mask_size + 1) / 2) - 1)
-        r = [0] * mask_size
-        g = [0] * mask_size
-        b = [0] * mask_size
+                        result_array[i, j, 0] = r[median_index]
+                        result_array[i, j, 1] = g[median_index]
+                        result_array[i, j, 2] = b[median_index]
 
-        for i in range(pad_w, height - pad_w):
-            for j in range(pad_w, width - pad_w):
-                mask_count = 0
-                for k in range(window_val):
-                    for l in range(window_val):
-                        r[mask_count] = np_img[i+k-pad_w][j+l-pad_w][0]
-                        g[mask_count] = np_img[i+k-pad_w][j+l-pad_w][1]
-                        b[mask_count] = np_img[i+k-pad_w][j+l-pad_w][2]
-                        mask_count += 1
+                img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+                img_filter.save("Filters_img/Median_filter.png")
+                print("Saved image.")
+                pix = QtGui.QPixmap("Filters_img/Median_filter.png")
+                self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+                scaled_pixmap = pix.scaled(800, 620)
+                self.photo.setPixmap(scaled_pixmap)
+                self.sizeBox.setCurrentIndex(3)
+                self.sizeBox.hide()
+                self.sizeBox.show()
+                self.photo.hide()
+                self.photo.show()
+                # plot
+                plt.subplot(2, 1, 1)
+                plt.title('Before Median filter', size=16, y=1.12)
+                plt.imshow(img, cmap='gray', vmin=0, vmax=255)
 
-                r.sort()
-                g.sort()
-                b.sort()
+                plt.subplot(2, 1, 2)
+                plt.title('After Median filter', size=16, y=1.12)
+                plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
 
-                result_array[i, j, 0] = r[median_index]
-                result_array[i, j, 1] = g[median_index]
-                result_array[i, j, 2] = b[median_index]
+                plt.tight_layout()
+                plt.show()
+            else:
+                for i in range(pad_w, height - pad_w):
+                    for j in range(pad_w, width - pad_w):
+                        mask_count = 0
+                        for k in range(window_val):
+                            for l in range(window_val):
+                                g[mask_count] = np_img[i + k - pad_w][j + l - pad_w][0]
+                                mask_count += 1
 
+                        g.sort()
 
-        img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
-        img_filter.save("Filters_img/Median_filter.png")
-        print("Saved image.")
+                        result_array[i, j, 0] = g[median_index]
+                        result_array[i, j, 1] = g[median_index]
+                        result_array[i, j, 2] = g[median_index]
 
+                img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+                img_filter.save("Filters_img/Median_greyscale_filter.png")
+                print("Saved image.")
+                pix = QtGui.QPixmap("Filters_img/Median_greyscale_filter.png")
+                self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+                scaled_pixmap = pix.scaled(800, 620)
+                self.photo.setPixmap(scaled_pixmap)
+                self.sizeBox.setCurrentIndex(3)
+                self.sizeBox.hide()
+                self.sizeBox.show()
+                self.photo.hide()
+                self.photo.show()
+                # plot
+                plt.subplot(2, 1, 1)
+                plt.title('Before Median filter', size=16, y=1.12)
+                plt.imshow(img, cmap='gray', vmin=0, vmax=255)
 
+                plt.subplot(2, 1, 2)
+                plt.title('After Median filter', size=16, y=1.12)
+                plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
 
+                plt.tight_layout()
+                plt.show()
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Select mask to use Filter")
+            msg.setWindowTitle("Warning!")
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+            msg.exec_()
 
 
 
@@ -494,6 +555,26 @@ class Ui_ImageProcessingWindow(object):
             img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
             img_filter.save("Filters_img/Kuwahara_filter.png")
             print("Saved image.")
+            pix = QtGui.QPixmap("Filters_img/Kuwahara_filter.png")
+            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+            scaled_pixmap = pix.scaled(800, 620)
+            self.photo.setPixmap(scaled_pixmap)
+            self.sizeBox.setCurrentIndex(3)
+            self.sizeBox.hide()
+            self.sizeBox.show()
+            self.photo.hide()
+            self.photo.show()
+            # plot
+            plt.subplot(2, 1, 1)
+            plt.title('Before Kuwahara filter', size=16, y=1.12)
+            plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+
+            plt.subplot(2, 1, 2)
+            plt.title('After Kuwahara filter', size=16, y=1.12)
+            plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
+
+            plt.tight_layout()
+            plt.show()
         else:
             for i in range(margin, height - margin):
                 print(i)
@@ -526,145 +607,175 @@ class Ui_ImageProcessingWindow(object):
             img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
             img_filter.save("Filters_img/Kuwahara_greyscale_filter.png")
             print("Saved image.")
+            pix = QtGui.QPixmap("Filters_img/Kuwahara_greyscale_filter.png")
+            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+            scaled_pixmap = pix.scaled(800, 620)
+            self.photo.setPixmap(scaled_pixmap)
+            self.sizeBox.setCurrentIndex(3)
+            self.sizeBox.hide()
+            self.sizeBox.show()
+            self.photo.hide()
+            self.photo.show()
+            # plot
+            plt.subplot(2, 1, 1)
+            plt.title('Before Kuwahara filter', size=16, y=1.12)
+            plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+
+            plt.subplot(2, 1, 2)
+            plt.title('After Kuwahara filter', size=16, y=1.12)
+            plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
+
+            plt.tight_layout()
+            plt.show()
 
     def convolution_filter(self):
-        img = Image.open(self.pathLabel.text(), "r")
-        img = img.convert("RGB")
-        np_img = np.asarray(img)
+        try:
+            img = Image.open(self.pathLabel.text(), "r")
+            img = img.convert("RGB")
+            np_img = np.asarray(img)
 
-        pix_val = list(img.getdata())
-        coloured = self.check_coloured(pix_val)
-        maskLen = len(createdMask[0])
+            pix_val = list(img.getdata())
+            coloured = self.check_coloured(pix_val)
+            maskLen = len(createdMask[0])
 
-        window_val = 0
-        if maskLen == 3:
-            window_val = 3
-        elif maskLen == 5:
-            window_val = 5
-        elif maskLen == 7:
-            window_val = 7
+            window_val = 0
+            if maskLen == 3:
+                window_val = 3
+            elif maskLen == 5:
+                window_val = 5
+            elif maskLen == 7:
+                window_val = 7
 
-        pad_w = int(window_val / 2)
-        mask_weight = 0
-        for k in range(window_val):
-            for l in range(window_val):
-                mask_weight += createdMask[k][l]
-        if mask_weight == 0:
-            mask_weight = 1
+            pad_w = int(window_val / 2)
+            mask_weight = 0
+            for k in range(window_val):
+                for l in range(window_val):
+                    mask_weight += createdMask[k][l]
+            if mask_weight == 0:
+                mask_weight = 1
 
-        result_array = np.zeros(shape=(len(np_img),len(np_img[0]), 3))
+            result_array = np.zeros(shape=(len(np_img), len(np_img[0]), 3))
 
-        if coloured:
-            k_counter = 0
-            l_counter = 0
-            for i in range(pad_w, len(np_img) - pad_w):
-                for j in range(pad_w, len(np_img[0]) - pad_w):
-                    sum_r = 0
-                    sum_g = 0
-                    sum_b = 0
-                    for k in range(window_val):
-                        for l in range(window_val):
-                            sum_r += np_img[k + k_counter][l + l_counter][0] * createdMask[k][l]
-                            sum_g += np_img[k + k_counter][l + l_counter][1] * createdMask[k][l]
-                            sum_b += np_img[k + k_counter][l + l_counter][2] * createdMask[k][l]
-
-                    pix_r = sum_r / mask_weight
-                    pix_g = sum_g / mask_weight
-                    pix_b = sum_b / mask_weight
-
-                    if pix_r > 255:
-                        pix_r = 255
-                    elif pix_r < 0:
-                        pix_r = 0
-                    if pix_g > 255:
-                        pix_g = 255
-                    elif pix_g < 0:
-                        pix_g = 0
-                    if pix_b > 255:
-                        pix_b = 255
-                    elif pix_b < 0:
-                        pix_b = 0
-
-                    result_array[i, j, 0] = pix_r
-                    result_array[i, j, 1] = pix_g
-                    result_array[i, j, 2] = pix_b
-
-                    l_counter += 1
-                k_counter += 1
+            if coloured:
+                k_counter = 0
                 l_counter = 0
-            img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
-            img_filter.save("Filters_img/Conv_filter.png")
-            print("Saved image.")
+                for i in range(pad_w, len(np_img) - pad_w):
+                    for j in range(pad_w, len(np_img[0]) - pad_w):
+                        sum_r = 0
+                        sum_g = 0
+                        sum_b = 0
+                        for k in range(window_val):
+                            for l in range(window_val):
+                                sum_r += np_img[k + k_counter][l + l_counter][0] * createdMask[k][l]
+                                sum_g += np_img[k + k_counter][l + l_counter][1] * createdMask[k][l]
+                                sum_b += np_img[k + k_counter][l + l_counter][2] * createdMask[k][l]
 
-            # save in folder
-            pix = QtGui.QPixmap("Filters_img/Conv_filter.png")
-            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
-            scaled_pixmap = pix.scaled(800, 620)
-            self.photo.setPixmap(scaled_pixmap)
-            self.sizeBox.setCurrentIndex(3)
-            self.sizeBox.hide()
-            self.sizeBox.show()
-            self.photo.hide()
-            self.photo.show()
-            # plot
-            plt.subplot(2, 1, 1)
-            plt.title('Before convolution filter', size=16, y=1.12)
-            plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+                        pix_r = sum_r / mask_weight
+                        pix_g = sum_g / mask_weight
+                        pix_b = sum_b / mask_weight
 
-            plt.subplot(2, 1, 2)
-            plt.title('After convolution filter', size=16, y=1.12)
-            plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
+                        if pix_r > 255:
+                            pix_r = 255
+                        elif pix_r < 0:
+                            pix_r = 0
+                        if pix_g > 255:
+                            pix_g = 255
+                        elif pix_g < 0:
+                            pix_g = 0
+                        if pix_b > 255:
+                            pix_b = 255
+                        elif pix_b < 0:
+                            pix_b = 0
 
-            plt.tight_layout()
-            plt.show()
-        else:
-            k_counter = 0
-            l_counter = 0
-            for i in range(pad_w, len(np_img) - pad_w):
-                for j in range(pad_w, len(np_img[0]) - pad_w):
-                    sum_g = 0
-                    for k in range(window_val):
-                        for l in range(window_val):
-                            sum_g += np_img[k + k_counter][l + l_counter][0] * createdMask[k][l]
+                        result_array[i, j, 0] = pix_r
+                        result_array[i, j, 1] = pix_g
+                        result_array[i, j, 2] = pix_b
 
-                    pix_g = sum_g / mask_weight
+                        l_counter += 1
+                    k_counter += 1
+                    l_counter = 0
+                img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+                img_filter.save("Filters_img/Conv_filter.png")
+                print("Saved image.")
 
-                    if pix_g > 255:
-                        pix_g = 255
-                    elif pix_g < 0:
-                        pix_g = 0
+                # save in folder
+                pix = QtGui.QPixmap("Filters_img/Conv_filter.png")
+                self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+                scaled_pixmap = pix.scaled(800, 620)
+                self.photo.setPixmap(scaled_pixmap)
+                self.sizeBox.setCurrentIndex(3)
+                self.sizeBox.hide()
+                self.sizeBox.show()
+                self.photo.hide()
+                self.photo.show()
+                # plot
+                plt.subplot(2, 1, 1)
+                plt.title('Before convolution filter', size=16, y=1.12)
+                plt.imshow(img, cmap='gray', vmin=0, vmax=255)
 
-                    result_array[i, j, 0] = pix_g
-                    result_array[i, j, 1] = pix_g
-                    result_array[i, j, 2] = pix_g
+                plt.subplot(2, 1, 2)
+                plt.title('After convolution filter', size=16, y=1.12)
+                plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
 
-                    l_counter += 1
-                k_counter += 1
+                plt.tight_layout()
+                plt.show()
+            else:
+                k_counter = 0
                 l_counter = 0
+                for i in range(pad_w, len(np_img) - pad_w):
+                    for j in range(pad_w, len(np_img[0]) - pad_w):
+                        sum_g = 0
+                        for k in range(window_val):
+                            for l in range(window_val):
+                                sum_g += np_img[k + k_counter][l + l_counter][0] * createdMask[k][l]
 
-            img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
-            img_filter.save("Filters_img/Conv_greyscale_filter.png")
-            print("Saved image.")
-            pix = QtGui.QPixmap("Filters_img/Conv_greyscale_filter.png")
-            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
-            scaled_pixmap = pix.scaled(800, 620)
-            self.photo.setPixmap(scaled_pixmap)
-            self.sizeBox.setCurrentIndex(3)
-            self.sizeBox.hide()
-            self.sizeBox.show()
-            self.photo.hide()
-            self.photo.show()
-            # plot
-            plt.subplot(2, 1, 1)
-            plt.title('Before convolution filter', size=16, y=1.12)
-            plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+                        pix_g = sum_g / mask_weight
 
-            plt.subplot(2, 1, 2)
-            plt.title('After convolution filter', size=16, y=1.12)
-            plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
+                        if pix_g > 255:
+                            pix_g = 255
+                        elif pix_g < 0:
+                            pix_g = 0
 
-            plt.tight_layout()
-            plt.show()
+                        result_array[i, j, 0] = pix_g
+                        result_array[i, j, 1] = pix_g
+                        result_array[i, j, 2] = pix_g
+
+                        l_counter += 1
+                    k_counter += 1
+                    l_counter = 0
+
+                img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+                img_filter.save("Filters_img/Conv_greyscale_filter.png")
+                print("Saved image.")
+                pix = QtGui.QPixmap("Filters_img/Conv_greyscale_filter.png")
+                self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+                scaled_pixmap = pix.scaled(800, 620)
+                self.photo.setPixmap(scaled_pixmap)
+                self.sizeBox.setCurrentIndex(3)
+                self.sizeBox.hide()
+                self.sizeBox.show()
+                self.photo.hide()
+                self.photo.show()
+                # plot
+                plt.subplot(2, 1, 1)
+                plt.title('Before convolution filter', size=16, y=1.12)
+                plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+
+                plt.subplot(2, 1, 2)
+                plt.title('After convolution filter', size=16, y=1.12)
+                plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
+
+                plt.tight_layout()
+                plt.show()
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Select mask to use Filter")
+            msg.setWindowTitle("Warning!")
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+            msg.exec_()
+
 
     def create_mask(self):
         self.showDialog()
