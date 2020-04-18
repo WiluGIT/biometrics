@@ -255,6 +255,9 @@ class Ui_ImageProcessingWindow(object):
         self.kuwaharaButton = QtWidgets.QPushButton(self.centralwidget)
         self.kuwaharaButton.setGeometry(QtCore.QRect(820, 390, 110, 32))
         self.kuwaharaButton.setObjectName("kuwaharaButton")
+        self.medianButton = QtWidgets.QPushButton(self.centralwidget)
+        self.medianButton.setGeometry(QtCore.QRect(820, 430, 110, 32))
+        self.medianButton.setObjectName("medianButton")
 
 
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
@@ -290,6 +293,7 @@ class Ui_ImageProcessingWindow(object):
         self.maskButton.clicked.connect(self.create_mask)
         self.convolutionButton.clicked.connect(self.convolution_filter)
         self.kuwaharaButton.clicked.connect(self.kuwahara_filter)
+        self.medianButton.clicked.connect(self.median_filter)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
         ImageProcessingWindow.setWindowTitle(_translate("ImageProcessingWindow", "Image Processing"))
@@ -330,6 +334,7 @@ class Ui_ImageProcessingWindow(object):
         self.maskButton.setText(_translate("ImageProcessingWindow", "Create mask"))
         self.convolutionButton.setText(_translate("ImageProcessingWindow", "Convolution filter"))
         self.kuwaharaButton.setText(_translate("ImageProcessingWindow", "Kuwahara filter"))
+        self.medianButton.setText(_translate("ImageProcessingWindow", "Median filter"))
 
 
         self.aRangeValue.setText("0")
@@ -344,6 +349,68 @@ class Ui_ImageProcessingWindow(object):
         self.bRangeValue.setValidator(my_validator)
         my_validator = QtGui.QRegExpValidator(my_regex, self.tresholdValueText)
         self.tresholdValueText.setValidator(my_validator)
+
+    def median_filter(self):
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+        # numpy array
+        np_img = np.asarray(img)
+
+        # if coloured
+        pix_val = list(img.getdata())
+        coloured = self.check_coloured(pix_val)
+
+        # input data
+        width = np_img.shape[1]
+        height = np_img.shape[0]
+        result_array = np.zeros(shape=(height, width, 3))
+
+        maskLen = len(createdMask[0])
+
+        window_val = 0
+        if maskLen == 3:
+            window_val = 3
+        elif maskLen == 5:
+            window_val = 5
+        elif maskLen == 7:
+            window_val = 7
+
+        pad_w = int(window_val / 2)
+        mask_size = window_val * window_val
+        median_index = int(((mask_size + 1) / 2) - 1)
+        r = [0] * mask_size
+        g = [0] * mask_size
+        b = [0] * mask_size
+
+        for i in range(pad_w, height - pad_w):
+            for j in range(pad_w, width - pad_w):
+                mask_count = 0
+                for k in range(window_val):
+                    for l in range(window_val):
+                        r[mask_count] = np_img[i+k-pad_w][j+l-pad_w][0]
+                        g[mask_count] = np_img[i+k-pad_w][j+l-pad_w][1]
+                        b[mask_count] = np_img[i+k-pad_w][j+l-pad_w][2]
+                        mask_count += 1
+
+                r.sort()
+                g.sort()
+                b.sort()
+
+                result_array[i, j, 0] = r[median_index]
+                result_array[i, j, 1] = g[median_index]
+                result_array[i, j, 2] = b[median_index]
+
+
+        img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+        img_filter.save("Filters_img/Median_filter.png")
+        print("Saved image.")
+
+
+
+
+
+
+
 
 
     def kuwahara_filter(self):
@@ -528,6 +595,28 @@ class Ui_ImageProcessingWindow(object):
             img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
             img_filter.save("Filters_img/Conv_filter.png")
             print("Saved image.")
+
+            # save in folder
+            pix = QtGui.QPixmap("Filters_img/Conv_filter.png")
+            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+            scaled_pixmap = pix.scaled(800, 620)
+            self.photo.setPixmap(scaled_pixmap)
+            self.sizeBox.setCurrentIndex(3)
+            self.sizeBox.hide()
+            self.sizeBox.show()
+            self.photo.hide()
+            self.photo.show()
+            # plot
+            plt.subplot(2, 1, 1)
+            plt.title('Before convolution filter', size=16, y=1.12)
+            plt.imshow(img, cmap='gray', vmin=0, vmax=255)
+
+            plt.subplot(2, 1, 2)
+            plt.title('After convolution filter', size=16, y=1.12)
+            plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
+
+            plt.tight_layout()
+            plt.show()
         else:
             k_counter = 0
             l_counter = 0
@@ -556,12 +645,26 @@ class Ui_ImageProcessingWindow(object):
             img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
             img_filter.save("Filters_img/Conv_greyscale_filter.png")
             print("Saved image.")
+            pix = QtGui.QPixmap("Filters_img/Conv_greyscale_filter.png")
+            self.photo.setGeometry(QtCore.QRect(0, 0, 800, 620))
+            scaled_pixmap = pix.scaled(800, 620)
+            self.photo.setPixmap(scaled_pixmap)
+            self.sizeBox.setCurrentIndex(3)
+            self.sizeBox.hide()
+            self.sizeBox.show()
+            self.photo.hide()
+            self.photo.show()
+            # plot
+            plt.subplot(2, 1, 1)
+            plt.title('Before convolution filter', size=16, y=1.12)
+            plt.imshow(img, cmap='gray', vmin=0, vmax=255)
 
+            plt.subplot(2, 1, 2)
+            plt.title('After convolution filter', size=16, y=1.12)
+            plt.imshow(img_filter, cmap='gray', vmin=0, vmax=255)
 
-
-
-
-
+            plt.tight_layout()
+            plt.show()
 
     def create_mask(self):
         self.showDialog()
