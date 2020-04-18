@@ -252,6 +252,9 @@ class Ui_ImageProcessingWindow(object):
         self.convolutionButton = QtWidgets.QPushButton(self.centralwidget)
         self.convolutionButton.setGeometry(QtCore.QRect(820, 350, 110, 32))
         self.convolutionButton.setObjectName("convolutionButton")
+        self.kuwaharaButton = QtWidgets.QPushButton(self.centralwidget)
+        self.kuwaharaButton.setGeometry(QtCore.QRect(820, 390, 110, 32))
+        self.kuwaharaButton.setObjectName("kuwaharaButton")
 
 
         ImageProcessingWindow.setCentralWidget(self.centralwidget)
@@ -286,6 +289,7 @@ class Ui_ImageProcessingWindow(object):
         self.greyscaleButton.clicked.connect(self.turn_greyscale)
         self.maskButton.clicked.connect(self.create_mask)
         self.convolutionButton.clicked.connect(self.convolution_filter)
+        self.kuwaharaButton.clicked.connect(self.kuwahara_filter)
     def retranslateUi(self, ImageProcessingWindow):
         _translate = QtCore.QCoreApplication.translate
         ImageProcessingWindow.setWindowTitle(_translate("ImageProcessingWindow", "Image Processing"))
@@ -325,6 +329,7 @@ class Ui_ImageProcessingWindow(object):
         self.greyscaleButton.setText(_translate("ImageProcessingWindow", "Turn greyscale"))
         self.maskButton.setText(_translate("ImageProcessingWindow", "Create mask"))
         self.convolutionButton.setText(_translate("ImageProcessingWindow", "Convolution filter"))
+        self.kuwaharaButton.setText(_translate("ImageProcessingWindow", "Kuwahara filter"))
 
 
         self.aRangeValue.setText("0")
@@ -341,6 +346,120 @@ class Ui_ImageProcessingWindow(object):
         self.tresholdValueText.setValidator(my_validator)
 
 
+    def kuwahara_filter(self):
+        img = Image.open(self.pathLabel.text(), "r")
+        img = img.convert("RGB")
+        # numpy array
+        np_img = np.asarray(img)
+
+        # if coloured
+        pix_val = list(img.getdata())
+        coloured = self.check_coloured(pix_val)
+
+        # input data
+        margin = int(5 / 2)
+        width = np_img.shape[1]
+        height = np_img.shape[0]
+        result_array = np.zeros(shape=(height, width, 3))
+
+        # algorithm
+        if coloured:
+            for i in range(margin, height - margin):
+                for j in range(margin, width - margin):
+                    rm = [0] * 4
+                    gm = [0] * 4
+                    bm = [0] * 4
+                    for k in range(3):
+                        for l in range(3):
+                            rm[0] += np_img[i + k - margin][j + l - margin][0] / 9.0
+                            rm[1] += np_img[i + k][j + l - margin][0] / 9.0
+                            rm[2] += np_img[i + k - margin][j + l][0] / 9.0
+                            rm[3] += np_img[i + k][j + l][0] / 9.0
+
+                            gm[0] += np_img[i + k - margin][j + l - margin][1] / 9.0
+                            gm[1] += np_img[i + k][j + l - margin][1] / 9.0
+                            gm[2] += np_img[i + k - margin][j + l][1] / 9.0
+                            gm[3] += np_img[i + k][j + l][1] / 9.0
+
+                            bm[0] += np_img[i + k - margin][j + l - margin][2] / 9.0
+                            bm[1] += np_img[i + k][j + l - margin][2] / 9.0
+                            bm[2] += np_img[i + k - margin][j + l][2] / 9.0
+                            bm[3] += np_img[i + k][j + l][2] / 9.0
+
+                    rs = [0] * 4
+                    gs = [0] * 4
+                    bs = [0] * 4
+
+                    for k in range(3):
+                        for l in range(3):
+                            rs[0] += (np_img[i + k - margin][j + l - margin][0] - rm[0]) * (np_img[i + k - margin][j + l - margin][0] - rm[0])
+                            rs[1] += (np_img[i + k][j + l - margin][0] - rm[1]) * (np_img[i + k][j + l - margin][0] - rm[1])
+                            rs[2] += (np_img[i + k - margin][j + l][0] - rm[2]) * (np_img[i + k - margin][j + l][0] - rm[2])
+                            rs[3] += (np_img[i + k][j + l][0] - rm[3]) * (np_img[i + k][j + l][0] - rm[3])
+
+                            gs[0] += (np_img[i + k - margin][j + l - margin][1] - gm[0]) * (np_img[i + k - margin][j + l - margin][1] - gm[0])
+                            gs[1] += (np_img[i + k][j + l - margin][1] - gm[1]) * (np_img[i + k][j + l - margin][1] - gm[1])
+                            gs[2] += (np_img[i + k - margin][j + l][1] - gm[2]) * (np_img[i + k - margin][j + l][1] - gm[2])
+                            gs[3] += (np_img[i + k][j + l][1] - gm[3]) * (np_img[i + k][j + l][1] - gm[3])
+
+                            bs[0] += (np_img[i + k - margin][j + l - margin][2] - bm[0]) * (np_img[i + k - margin][j + l - margin][2] - bm[0])
+                            bs[1] += (np_img[i + k][j + l - margin][2] - bm[1]) * (np_img[i + k][j + l - margin][2] - bm[1])
+                            bs[2] += (np_img[i + k - margin][j + l][2] - bm[2]) * (np_img[i + k - margin][j + l][2] - bm[2])
+                            bs[3] += (np_img[i + k][j + l][2] - bm[3]) * (np_img[i + k][j + l][2] - bm[3])
+
+                    mr = 0
+                    for k in range(1, 4):
+                        if rs[k] < rs[mr]:
+                            mr = k
+                    mg = 0
+                    for k in range(1, 4):
+                        if gs[k] < gs[mg]:
+                            mg = k
+                    mb = 0
+                    for k in range(1, 4):
+                        if bs[k] < bs[mb]:
+                            mb = k
+
+                    result_array[i, j, 0] = int(rm[mr])
+                    result_array[i, j, 1] = int(gm[mg])
+                    result_array[i, j, 2] = int(bm[mb])
+
+            img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+            img_filter.save("Filters_img/Kuwahara_filter.png")
+            print("Saved image.")
+        else:
+            for i in range(margin, height - margin):
+                print(i)
+                for j in range(margin, width - margin):
+                    graym = [0] * 4
+                    for k in range(3):
+                        for l in range(3):
+                            graym[0] += np_img[i+k-margin][j+l-margin][0] / 9.0
+                            graym[1] += np_img[i+k][j+l-margin][0] / 9.0
+                            graym[2] += np_img[i+k-margin][j+l][0] / 9.0
+                            graym[3] += np_img[i+k][j+l][0] / 9.0
+
+                    grays = [0] * 4
+                    for k in range(3):
+                        for l in range(3):
+                            grays[0] += (np_img[i+k-margin][j+l-margin][0] - graym[0]) * (np_img[i+k-margin][j+l-margin][0] - graym[0])
+                            grays[1] += (np_img[i+k][j+l-margin][0] - graym[1]) * (np_img[i+k][j+l-margin][0]- graym[1])
+                            grays[2] += (np_img[i+k-margin][j+l][0] - graym[2]) * (np_img[i+k-margin][j+l][0]- graym[2])
+                            grays[3] += (np_img[i+k][j+l][0] - graym[3]) * (np_img[i+k][j+l][0] - graym[3])
+
+                    m = 0
+                    for k in range(1,4):
+                        if grays[k] < grays[m]:
+                            m = k
+
+                    result_array[i, j, 0] = int(graym[m])
+                    result_array[i, j, 1] = int(graym[m])
+                    result_array[i, j, 2] = int(graym[m])
+
+            img_filter = Image.fromarray(result_array.astype('uint8'), 'RGB')
+            img_filter.save("Filters_img/Kuwahara_greyscale_filter.png")
+            print("Saved image.")
+
     def convolution_filter(self):
         img = Image.open(self.pathLabel.text(), "r")
         img = img.convert("RGB")
@@ -348,8 +467,6 @@ class Ui_ImageProcessingWindow(object):
 
         pix_val = list(img.getdata())
         coloured = self.check_coloured(pix_val)
-
-
         maskLen = len(createdMask[0])
 
         window_val = 0
